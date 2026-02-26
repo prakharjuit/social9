@@ -1,0 +1,280 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     Boolean   @default(false)
+  password          String
+  name              String?
+  timezone          String    @default("UTC")
+  
+  // Business profile
+  businessName      String?
+  businessType      String?   // Restaurant, Salon, Gym, etc.
+  businessLocation  String?
+  businessPhone     String?
+  businessHours     String?
+  
+  // Subscription
+  stripeCustomerId  String?   @unique
+  subscriptionId    String?
+  planType          PlanType  @default(FREE)
+  subscriptionStatus SubscriptionStatus @default(INACTIVE)
+  trialEndsAt       DateTime?
+  subscriptionEndsAt DateTime?
+  
+  // Usage tracking
+  postsThisMonth    Int       @default(0)
+  aiUsageThisMonth  Int       @default(0)
+  
+  // Relationships
+  socialAccounts    SocialAccount[]
+  posts             Post[]
+  drafts            Draft[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([stripeCustomerId])
+}
+
+enum PlanType {
+  FREE
+  STARTER
+  PROFESSIONAL
+  AGENCY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELED
+  PAST_DUE
+}
+
+// ============================================
+// SOCIAL ACCOUNTS
+// ============================================
+
+model SocialAccount {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  platform          Platform
+  platformUserId    String
+  platformUsername  String?
+  platformDisplayName String?
+  profilePictureUrl String?
+  
+  // OAuth tokens
+  accessToken       String
+  refreshToken      String?
+  tokenExpiresAt    DateTime?
+  
+  // Account status
+  status            AccountStatus @default(ACTIVE)
+  lastHealthCheck   DateTime?
+  errorMessage      String?
+  
+  // Metadata
+  metadata          Json?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@unique([userId, platform, platformUserId])
+  @@index([userId])
+  @@index([platform])
+}
+
+enum Platform {
+  INSTAGRAM
+  LINKEDIN
+  FACEBOOK
+  TWITTER
+}
+
+enum AccountStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+// ============================================
+// POSTS & PUBLISHING
+// ============================================
+
+model Post {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Content
+  content           String    @db.Text
+  mediaUrls         String[]
+  firstComment      String?   @db.Text
+  location          String?
+  
+  // Scheduling
+  scheduledFor      DateTime?
+  timezone          String    @default("UTC")
+  publishedAt       DateTime?
+  
+  // Status
+  status            PostStatus @default(DRAFT)
+  
+  // Template info
+  templateId        String?
+  templateName      String?
+  
+  // Publishing results
+  platforms         PlatformPost[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledFor])
+}
+
+model PlatformPost {
+  id                String    @id @default(cuid())
+  postId            String
+  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  socialAccountId   String
+  platform          Platform
+  
+  // Publishing
+  status            PublishStatus @default(PENDING)
+  platformPostId    String?
+  platformPostUrl   String?
+  
+  // Error handling
+  errorMessage      String?
+  retryCount        Int       @default(0)
+  lastRetryAt       DateTime?
+  
+  publishedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([postId])
+  @@index([socialAccountId])
+  @@index([status])
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELED
+}
+
+enum PublishStatus {
+  PENDING
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+// ============================================
+// DRAFTS
+// ============================================
+
+model Draft {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  content           String    @db.Text
+  mediaUrls         String[]
+  selectedPlatforms Platform[]
+  
+  metadata          Json?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([userId])
+}
+
+// ============================================
+// TEMPLATES
+// ============================================
+
+model Template {
+  id                String    @id @default(cuid())
+  
+  // Template info
+  name              String
+  description       String?
+  industry          String
+  category          String
+  
+  // Content
+  contentTemplate   String    @db.Text
+  suggestedHashtags String[]
+  suggestedTimes    String[]
+  
+  // Media suggestions
+  imageSuggestions  String[]
+  
+  // Metadata
+  usageCount        Int       @default(0)
+  isActive          Boolean   @default(true)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([industry])
+  @@index([category])
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+model Analytics {
+  id                String    @id @default(cuid())
+  userId            String
+  
+  // Time period
+  date              DateTime  @db.Date
+  
+  // Metrics
+  postsPublished    Int       @default(0)
+  postsFailed       Int       @default(0)
+  
+  // Platform breakdown
+  instagramPosts    Int       @default(0)
+  linkedinPosts     Int       @default(0)
+  facebookPosts     Int       @default(0)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
