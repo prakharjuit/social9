@@ -105,22 +105,10 @@ export default function SocialAccounts() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1">
-        <nav className="bg-white shadow-sm border-b border-gray-200 md:hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex items-center">
-                <button onClick={() => navigate('/dashboard')} className="text-2xl font-bold text-primary-600">Social9</button>
-                <span className="ml-4 text-gray-500">/</span>
-                <span className="ml-4 text-gray-700">Social Accounts</span>
-              </div>
-            </div>
-          </div>
-        </nav>
-
+      <div className="flex-1 pt-16 md:pt-0">
         <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-6">

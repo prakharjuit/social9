@@ -51,37 +51,37 @@ export default function Strategy() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 pt-16 md:pt-0 p-4 md:p-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 md:gap-0">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Posting Strategy</h1>
               <p className="text-sm text-gray-500">Daily posting suggestions to grow your account</p>
               <div className="mt-2 text-xs text-gray-500">Tip: Use this calendar to plan consistent content — quality + consistency beats randomness.</div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button onClick={prev} className="px-3 py-2 bg-white border rounded">Prev</button>
-              <div className="px-4 py-2 bg-white border rounded">
+            <div className="flex items-center space-x-2 flex-wrap">
+              <button onClick={prev} className="px-3 py-2 bg-white border rounded text-sm">Prev</button>
+              <div className="px-4 py-2 bg-white border rounded whitespace-nowrap">
                 <div className="text-sm font-medium">{monthName(month)} {year}</div>
               </div>
-              <button onClick={next} className="px-3 py-2 bg-white border rounded">Next</button>
+              <button onClick={next} className="px-3 py-2 bg-white border rounded text-sm">Next</button>
             </div>
           </div>
 
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="px-3 py-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">Auto-scheduler coming soon</div>
-              <div className="px-3 py-2 bg-blue-50 border border-blue-100 rounded text-sm text-blue-800">Create Post feature coming soon</div>
+          <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="flex items-center space-x-2 flex-wrap gap-2">
+              <div className="px-3 py-2 bg-yellow-50 border border-yellow-200 rounded text-xs md:text-sm text-yellow-800">Auto-scheduler coming soon</div>
+              <div className="px-3 py-2 bg-blue-50 border border-blue-100 rounded text-xs md:text-sm text-blue-800">Create Post feature coming soon</div>
             </div>
             <div>
-              <button disabled className="px-4 py-2 bg-blue-600 text-white rounded opacity-80 cursor-not-allowed">Create Post (coming soon)</button>
+              <button disabled className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded opacity-80 cursor-not-allowed text-sm">Create Post (coming soon)</button>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="grid grid-cols-7 gap-2 text-sm">
+          <div className="bg-white p-2 md:p-4 rounded-lg shadow overflow-x-auto">
+            <div className="grid grid-cols-7 gap-1 md:gap-2 text-sm min-w-max md:min-w-full">
               <div className="font-medium text-gray-600">Mon</div>
               <div className="font-medium text-gray-600">Tue</div>
               <div className="font-medium text-gray-600">Wed</div>
@@ -94,23 +94,23 @@ export default function Strategy() {
                 const suggestion = d ? suggestForDate(d) : null;
                 const isToday = d && d.toDateString() === new Date().toDateString();
                 return (
-                  <div key={idx} className={`min-h-[110px] p-3 rounded-lg transition-shadow ${isToday ? 'ring-2 ring-offset-1 ring-primary-300 bg-gradient-to-br from-primary-50 to-white' : 'bg-white hover:shadow-lg'}`}>
+                  <div key={idx} className={`min-h-[80px] md:min-h-[110px] p-2 md:p-3 rounded-lg transition-shadow text-xs md:text-sm ${isToday ? 'ring-2 ring-offset-1 ring-primary-300 bg-gradient-to-br from-primary-50 to-white' : 'bg-white hover:shadow-lg'}`}>
                     {d ? (
                       <div className="flex flex-col h-full">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="text-sm font-semibold text-gray-700">{d.getDate()}</div>
-                          <div className="text-xs text-gray-400">{d.toLocaleString('default', { weekday: 'short' })}</div>
+                        <div className="flex items-center justify-between mb-1 md:mb-2">
+                          <div className="text-xs md:text-sm font-semibold text-gray-700">{d.getDate()}</div>
+                          <div className="text-xs text-gray-400 hidden md:inline">{d.toLocaleString('default', { weekday: 'short' })}</div>
                         </div>
                         <div className="flex-1">
-                          <div className="inline-flex items-center space-x-2">
-                            <div className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs font-medium">{suggestion.title}</div>
-                            <div className="text-xs text-gray-500">{suggestion.time}</div>
+                          <div className="inline-flex items-center space-x-1 md:space-x-2 flex-wrap">
+                            <div className="px-2 py-0.5 md:py-1 bg-green-50 text-green-700 rounded text-xs font-medium">{suggestion.title}</div>
+                            <div className="text-xs text-gray-500 hidden md:inline">{suggestion.time}</div>
                           </div>
-                          <div className="text-xs text-gray-600 mt-2 line-clamp-2">{suggestion.caption}</div>
+                          <div className="text-xs text-gray-600 mt-1 md:mt-2 line-clamp-2 hidden md:block">{suggestion.caption}</div>
                         </div>
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="text-xs text-gray-400">Tip: schedule these posts for peak engagement.</div>
-                          <button disabled className="text-xs px-2 py-1 bg-white border rounded opacity-70 cursor-not-allowed">Schedule (coming soon)</button>
+                        <div className="mt-1 md:mt-3 flex items-center justify-between text-xs">
+                          <div className="text-xs text-gray-400 hidden md:inline">Tip: schedule these posts for peak engagement.</div>
+                          <button disabled className="text-xs px-1 md:px-2 py-0.5 md:py-1 bg-white border rounded opacity-70 cursor-not-allowed">Schedule</button>
                         </div>
                       </div>
                     ) : (
