@@ -112,7 +112,7 @@ const handleLinkedInCallback = async (req, res) => {
     await linkedinOAuth.handleCallback(code, state);
     
     // Redirect to success page
-    res.redirect(`${process.env.FRONTEND_URL}/settings/social-accounts?success=linkedin_connected`);
+   res.redirect(`${process.env.FRONTEND_URL}/dashboard?success=linkedin_connected`);
   } catch (error) {
     console.error('LinkedIn callback error:', error);
     res.redirect(`${process.env.FRONTEND_URL}/settings/social-accounts?error=${encodeURIComponent(error.message)}`);
